@@ -1,8 +1,8 @@
 import json
-
 import pytest
 from playwright.sync_api import Playwright, expect
 
+from pageObjects.dashboard import DashboardPage
 from pageObjects.login import LoginPage
 from utils.apiBase import APIUtils
 
@@ -23,10 +23,14 @@ def test_e2e_web_api(playwright: Playwright, user_credentials):
     api_utils = APIUtils()
     orderId = api_utils.createOrder(playwright, user_credentials)
     #login
-    # page.goto("https://rahulshettyacademy.com/client")
     loginPage=LoginPage(page)
     loginPage.navigate()
     loginPage.login(userEmail, userPassword)
+
+    #dashboard
+    dashboard = DashboardPage(page)
+    orderHistory =dashboard.selectOrdersNavLink()
+
     # page.get_by_placeholder("email@example.com").fill(user_credentials["userEmail"])
     # page.get_by_placeholder("enter your passsword").fill(user_credentials["userPassword"])
     # page.get_by_role("button", name="Login").click()
@@ -35,8 +39,7 @@ def test_e2e_web_api(playwright: Playwright, user_credentials):
     page.get_by_role("button", name="ORDERS").click()
 
     #orders History page-> order is present.
-    row = page.locator("tr").filter(has_text=orderId)
-    row.get_by_role("button", name="View").click()
+
     expect(page.locator(".tagline")).to_contain_text("Thank you for Shopping With Us")
     context.close()
 
